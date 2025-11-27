@@ -1,0 +1,63 @@
+# Build
+bin/
+obj/
+out/
+publish/
+
+# Visual Studio Code
+.vscode/
+.vs/
+
+# Logs e temporários
+*.log
+*.tlog
+*.vspscc
+*.user
+*.suo
+*.cache
+*.dbmdl
+*.pdb
+*.opendb
+*.jfm
+
+# Sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+
+# Pacotes e dependências
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+packages/
+*.dll
+*.exe
+
+# Configurações locais
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+launchSettings.json
+
+# Ambientes e containers
+.env
+docker-compose.override.yml
+
+# Backups
+*.bak
+*.old
+*.orig
+
+# Testes e cobertura
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# Arquivos do sistema operacional
+.DS_Store
+*.tmp
