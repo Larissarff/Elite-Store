@@ -6,9 +6,11 @@ public class JsonContext
 {
     private readonly string _basePath;
 
-    public JsonContext(IWebHostEnvironment env)
+    public JsonContext()
     {
-        _basePath = Path.Combine(env.ContentRootPath, "DataJson");
+        var path = Directory.GetCurrentDirectory();
+        
+        _basePath = Path.Combine(path, "DataJson");
         
         if (!Directory.Exists(_basePath))
             Directory.CreateDirectory(_basePath);
