@@ -1,37 +1,64 @@
 using AppEcommerce.Domain.Entities;
 using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Infra.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppEcommerce.Infra.Data.Repositories;
 
 public class ProdutoRepository : IProdutoRepository
 {
-    private readonly AppDbContext _ctx;
+    private readonly JsonContext _context;
+    private const string FileName = "produtos.json"; // Nome do arquivo
 
-    public ProdutoRepository(AppDbContext ctx) => _ctx = ctx;
+    public ProdutoRepository(JsonContext context)
+    {
+        _context = context;
+    }
 
     public async Task AddAsync(ProdutoEntity produto)
     {
-        await _ctx.ProdutoEntitys.AddAsync(produto);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<ProdutoEntity>(FileName);
+
+        int novoId = lista.Any() ? lista.Max(p => p.Id) + 1 : 1;
+        produto.Id = novoId;
+
+        lista.Add(produto);
+        await _context.SaveAsync(FileName, lista);
     }
 
     public async Task DeleteAsync(ProdutoEntity produto)
     {
-        _ctx.ProdutoEntitys.Remove(produto);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<ProdutoEntity>(FileName);
+        
+        var itemParaRemover = lista.FirstOrDefault(p => p.Id == produto.Id);
+        
+        if (itemParaRemover != null)
+        {
+            lista.Remove(itemParaRemover);
+            await _context.SaveAsync(FileName, lista);
+        }
     }
 
     public async Task<IEnumerable<ProdutoEntity>> GetAllAsync()
-        => await _ctx.ProdutoEntitys.AsNoTracking().ToListAsync();
+    {
+        return await _context.GetAsync<ProdutoEntity>(FileName);
+    }
 
     public async Task<ProdutoEntity?> GetByIdAsync(int id)
-        => await _ctx.ProdutoEntitys.FirstOrDefaultAsync(p => p.Id == id);
-
-    public async Task UpdateAsync(ProdutoEntity ProdutoEntity)
     {
-        _ctx.ProdutoEntitys.Update(ProdutoEntity);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<ProdutoEntity>(FileName);
+        return lista.FirstOrDefault(p => p.Id == id);
+    }
+
+    public async Task UpdateAsync(ProdutoEntity produto)
+    {
+        var lista = await _context.GetAsync<ProdutoEntity>(FileName);
+        
+        var index = lista.FindIndex(p => p.Id == produto.Id);
+        
+        if (index != -1)
+        {
+            lista[index] = produto; // Substitui o antigo pelo novo
+            await _context.SaveAsync(FileName, lista);
+        }
     }
 }
