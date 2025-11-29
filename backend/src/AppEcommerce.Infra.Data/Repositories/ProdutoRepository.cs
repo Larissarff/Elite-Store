@@ -7,7 +7,7 @@ namespace AppEcommerce.Infra.Data.Repositories;
 public class ProdutoRepository : IProdutoRepository
 {
     private readonly JsonContext _context;
-    private const string FileName = "produtos.json"; // Nome do arquivo
+    private const string FileName = "produtos.json";
 
     public ProdutoRepository(JsonContext context)
     {
@@ -19,7 +19,9 @@ public class ProdutoRepository : IProdutoRepository
         var lista = await _context.GetAsync<ProdutoEntity>(FileName);
 
         int novoId = lista.Any() ? lista.Max(p => p.Id) + 1 : 1;
-        produto.Id = novoId;
+        
+        // CORREÇÃO AQUI: Usando o método auxiliar em vez de atribuir direto
+        produto.DefinirId(novoId);
 
         lista.Add(produto);
         await _context.SaveAsync(FileName, lista);
@@ -27,6 +29,8 @@ public class ProdutoRepository : IProdutoRepository
 
     public async Task DeleteAsync(ProdutoEntity produto)
     {
+        // Precisamos buscar pelo ID para garantir que estamos removendo o objeto da lista atual em memória
+        // pois o objeto 'produto' que chega por parâmetro pode ser uma instância diferente
         var lista = await _context.GetAsync<ProdutoEntity>(FileName);
         
         var itemParaRemover = lista.FirstOrDefault(p => p.Id == produto.Id);
@@ -57,7 +61,7 @@ public class ProdutoRepository : IProdutoRepository
         
         if (index != -1)
         {
-            lista[index] = produto; // Substitui o antigo pelo novo
+            lista[index] = produto; 
             await _context.SaveAsync(FileName, lista);
         }
     }

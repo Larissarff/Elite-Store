@@ -1,54 +1,73 @@
+using System.Text.Json.Serialization;
 using AppEcommerce.Domain.Enums;
 
 namespace AppEcommerce.Domain.Entities;
 
 public class ProdutoEntity
 {
+    [JsonInclude]
     public int Id { get; private set; }
+
+    [JsonInclude]
     public string Nome { get; private set; } = string.Empty;
+
+    [JsonInclude]
     public string Descricao { get; private set; } = string.Empty;
+
+    [JsonInclude]
     public decimal Preco { get; private set; }
+
+    [JsonInclude]
     public TamanhoEnum Tamanho { get; private set; }
-    public int Estoque { get; private set; } = 0;
+
+    [JsonInclude]
+    public int Estoque { get; private set; }
+
+    [JsonInclude]
     public string Categoria { get; private set; } = string.Empty;
 
-    protected ProdutoEntity() { } 
+    public ProdutoEntity() { }
 
     public ProdutoEntity(string nome, string descricao, decimal preco, TamanhoEnum tamanho, int estoque, string categoria)
-        => Update(nome, descricao, preco, tamanho, estoque, categoria);
+    {
+        ValidateDomain(nome, descricao, preco, estoque, categoria);
+        Nome = nome;
+        Descricao = descricao;
+        Preco = preco;
+        Tamanho = tamanho;
+        Estoque = estoque;
+        Categoria = categoria;
+    }
+
+    public void DefinirId(int id)
+    {
+        Id = id;
+    }
 
     public void Update(string nome, string descricao, decimal preco, TamanhoEnum tamanho, int estoque, string categoria)
     {
-        if (string.IsNullOrWhiteSpace(nome))
-            throw new ArgumentException("Nome é obrigatório.");
-        if (preco < 0)
-            throw new ArgumentException("Preço não pode ser negativo.");
-        if (estoque < 0)
-            throw new ArgumentException("Estoque não pode ser negativo.");
-        if (string.IsNullOrWhiteSpace(categoria))
-            throw new ArgumentException("Categoria é obrigatória.");
-
-        Nome = nome.Trim();
-        Descricao = descricao?.Trim() ?? string.Empty;
-        Preco = decimal.Round(preco, 2); // formatação
+        ValidateDomain(nome, descricao, preco, estoque, categoria);
+        Nome = nome;
+        Descricao = descricao;
+        Preco = preco;
         Tamanho = tamanho;
         Estoque = estoque;
-        Categoria = categoria.Trim();
+        Categoria = categoria;
     }
 
-    public void DebitarEstoque(int qtd)
+    public void DebitarEstoque(int quantidade)
     {
-        if (qtd <= 0) 
-           throw new ArgumentException("Quantidade inválida.");
-        if (qtd > Estoque)
-           throw new InvalidOperationException("Estoque insuficiente.");
-        Estoque -= qtd;
+        if (quantidade > Estoque)
+            throw new Exception($"Estoque insuficiente. Disponível: {Estoque}");
+        Estoque -= quantidade;
     }
 
-    public void ReporEstoque(int qtd)
+    private void ValidateDomain(string nome, string descricao, decimal preco, int estoque, string categoria)
     {
-        if (qtd <= 0)
-            throw new ArgumentException("Quantidade inválida.");
-        Estoque += qtd;
+        if (string.IsNullOrWhiteSpace(nome)) throw new ArgumentException("Nome é obrigatório.");
+        if (string.IsNullOrWhiteSpace(descricao)) throw new ArgumentException("Descrição é obrigatória.");
+        if (preco <= 0) throw new ArgumentException("Preço deve ser maior que zero.");
+        if (estoque < 0) throw new ArgumentException("Estoque não pode ser negativo.");
+        if (string.IsNullOrWhiteSpace(categoria)) throw new ArgumentException("Categoria é obrigatória.");
     }
 }
