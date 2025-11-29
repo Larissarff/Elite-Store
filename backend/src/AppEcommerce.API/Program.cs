@@ -1,3 +1,7 @@
+using AppEcommerce.Infra.Data.Context;
+using AppEcommerce.Infra.Data.Repositories;
+using AppEcommerce.Domain.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -16,6 +20,10 @@ builder.Services.AddCors(options =>
                 .AllowCredentials();
         });
 });
+
+builder.Services.AddScoped<JsonContext>(); // Registro do JsonContext
+
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
