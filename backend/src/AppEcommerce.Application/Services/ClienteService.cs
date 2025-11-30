@@ -45,6 +45,7 @@ public class ClienteService
     public async Task DeleteAsync(int id)
     {
         await _repository.DeleteAsync(id);
+        
     }
 
     public async Task<IEnumerable<ClienteDto>> GetAllAsync()
