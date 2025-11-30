@@ -2,22 +2,18 @@ namespace AppEcommerce.Domain.Entities
 {
     public class ItemPedidoEntity
     {
-        public int IdItemPedido { get; private set; }
-        public int IdPedido { get; private set; }
         public int IdProduto { get; private set; }
         public int Quantidade { get; private set; }
         public decimal Subtotal { get; private set; }
 
-        public PedidoEntity Pedido { get; private set; }
+        protected ItemPedidoEntity() { }
 
-        protected ItemPedidoEntity() {}
-
-        public ItemPedidoEntity(int idProduto, int quantidade, decimal subtotal)
+        public ItemPedidoEntity(int idProduto, int quantidade, decimal preco)
         {
-            Update(idProduto, quantidade, subtotal);
+            Update(idProduto, quantidade, preco);
         }
 
-        public void Update(int idProduto, int quantidade, decimal subtotal)
+        public void Update(int idProduto, int quantidade, decimal preco)
         {
             if (idProduto <= 0)
                 throw new ArgumentException("Id do produto inválido.");
@@ -25,12 +21,12 @@ namespace AppEcommerce.Domain.Entities
             if (quantidade <= 0)
                 throw new ArgumentException("Quantidade deve ser maior que zero.");
 
-            if (subtotal < 0)
-                throw new ArgumentException("Subtotal inválido.");
+            if (preco < 0)
+                throw new ArgumentException("Preço inválido.");
 
             IdProduto = idProduto;
             Quantidade = quantidade;
-            Subtotal = subtotal;
+            Subtotal = quantidade * preco;
         }
     }
 }
