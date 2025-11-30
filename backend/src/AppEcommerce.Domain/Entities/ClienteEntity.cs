@@ -1,62 +1,51 @@
-using System.Data;
+using System.Text.Json.Serialization;
 
 namespace AppEcommerce.Domain.Entities;
 
-public class Cliente
+public class ClienteEntity
 {
+    [JsonInclude]
     public int Id { get; private set; }
+
+    [JsonInclude]
     public string Nome { get; private set; } = string.Empty;
+
+    [JsonInclude]
     public string Email { get; private set; } = string.Empty;
+
+    [JsonInclude]
     public string Senha { get; private set; } = string.Empty;
+
+    [JsonInclude]
     public string Endereco { get; private set; } = string.Empty;
 
-    protected Cliente() { }
+    public ClienteEntity() { }
 
-    public Cliente(string nome, string email, string senha, string endereco)
-        => Update(nome, email, senha, endereco);
+    public ClienteEntity(string nome, string email, string senha, string endereco)
+    {
+        ValidateDomain(nome, email, senha, endereco);
+        Nome = nome;
+        Email = email;
+        Senha = senha;
+        Endereco = endereco;
+    }
+
+    public void DefinirId(int id) => Id = id;
 
     public void Update(string nome, string email, string senha, string endereco)
     {
-        if (string.IsNullOrWhiteSpace(nome))
-            throw new ArgumentException("Nome é obrigatório.");
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email é obrigatório.");
-        if (string.IsNullOrWhiteSpace(senha))
-            throw new ArgumentException("Senha é obrigatória.");
-        if (string.IsNullOrWhiteSpace(endereco))
-            throw new ArgumentException("Endereço é obrigatório.");
-
-        Nome = nome.Trim();
-        Email = email.Trim();
-        Senha = senha.Trim();
-        Endereco = endereco.Trim();
+        ValidateDomain(nome, email, senha, endereco);
+        Nome = nome;
+        Email = email;
+        Senha = senha;
+        Endereco = endereco;
     }
 
-    public void AlterarNome(string novoNome)
+    private void ValidateDomain(string nome, string email, string senha, string endereco)
     {
-        if (string.IsNullOrWhiteSpace(novoNome))
-            throw new ArgumentException("Nome é obrigatório");
-        Email = novoNome.Trim();
-    }
-
-    public void AlterarEmail(string novoEmail)
-    {
-        if (string.IsNullOrWhiteSpace(novoEmail))
-            throw new ArgumentException("Email é obrigatório");
-        Email = novoEmail.Trim();
-    }
-
-    public void AlterarSenha(string novaSenha)
-    {
-        if (string.IsNullOrWhiteSpace(novaSenha))
-            throw new ArgumentException("Senha é obrigatória.");
-        Senha = novaSenha.Trim();
-    }
-
-    public void AlterarEndereco(string novoEndereco)
-    {
-        if (string.IsNullOrWhiteSpace(novoEndereco))
-            throw new ArgumentException("Endereço é obrigatório");
-        Endereco = novoEndereco.Trim();
+        if (string.IsNullOrWhiteSpace(nome)) throw new ArgumentException("Nome é obrigatório.");
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email é obrigatório.");
+        if (string.IsNullOrWhiteSpace(senha)) throw new ArgumentException("Senha é obrigatória.");
+        if (string.IsNullOrWhiteSpace(endereco)) throw new ArgumentException("Endereço é obrigatório.");
     }
 }

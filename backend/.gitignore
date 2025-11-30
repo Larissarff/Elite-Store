@@ -61,3 +61,6 @@ coverage/
 # Arquivos do sistema operacional
 .DS_Store
 *.tmp
+
+# dados JSON
+DataJson/

@@ -1,37 +1,68 @@
 using AppEcommerce.Domain.Entities;
 using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Infra.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppEcommerce.Infra.Data.Repositories;
 
 public class PagamentoRepository : IPagamentoRepository
 {
-    private readonly AppDbContext _ctx;
+    private readonly JsonContext _context;
+    private const string FileName = "pagamentos.json";
 
-    public PagamentoRepository(AppDbContext ctx) => _ctx = ctx;
+    public PagamentoRepository(JsonContext context)
+    {
+        _context = context;
+    }
 
     public async Task AddAsync(PagamentoEntity pagamento)
     {
-        await _ctx.Pagamentos.AddAsync(pagamento);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<PagamentoEntity>(FileName);
+
+        // Lógica de Auto-Increment manual (Id = Max + 1)
+        int novoId = lista.Any() ? lista.Max(p => p.Id) + 1 : 1;
+        
+        // Assumindo que você criou o método DefinirId na entidade (igual fizemos no Cliente/Produto)
+        pagamento.DefinirId(novoId);
+
+        lista.Add(pagamento);
+        await _context.SaveAsync(FileName, lista);
     }
 
     public async Task DeleteAsync(PagamentoEntity pagamento)
     {
-        _ctx.Pagamentos.Remove(pagamento);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<PagamentoEntity>(FileName);
+        
+        // Buscamos pelo ID para garantir a remoção correta
+        var itemParaRemover = lista.FirstOrDefault(p => p.Id == pagamento.Id);
+        
+        if (itemParaRemover != null)
+        {
+            lista.Remove(itemParaRemover);
+            await _context.SaveAsync(FileName, lista);
+        }
     }
 
     public async Task<IEnumerable<PagamentoEntity>> GetAllAsync()
-        => await _ctx.Pagamentos.AsNoTracking().ToListAsync();
+    {
+        return await _context.GetAsync<PagamentoEntity>(FileName);
+    }
 
     public async Task<PagamentoEntity?> GetByIdAsync(int id)
-        => await _ctx.Pagamentos.FirstOrDefaultAsync(p => p.Id == id);
+    {
+        var lista = await _context.GetAsync<PagamentoEntity>(FileName);
+        return lista.FirstOrDefault(p => p.Id == id);
+    }
 
     public async Task UpdateAsync(PagamentoEntity pagamento)
     {
-        _ctx.Pagamentos.Update(pagamento);
-        await _ctx.SaveChangesAsync();
+        var lista = await _context.GetAsync<PagamentoEntity>(FileName);
+        
+        var index = lista.FindIndex(p => p.Id == pagamento.Id);
+
+        if (index != -1)
+        {
+            lista[index] = pagamento;
+            await _context.SaveAsync(FileName, lista);
+        }
     }
 }
