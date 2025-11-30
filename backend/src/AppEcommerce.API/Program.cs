@@ -2,6 +2,11 @@ using AppEcommerce.Infra.Data.Context;
 using AppEcommerce.Infra.Data.Repositories;
 using System.Reflection;
 using AppEcommerce.Domain.Interfaces;
+using AppEcommerce.Application.Interfaces;
+using AppEcommerce.Application.Services;
+using AppEcommerce.Domain.Interfaces;
+using AppEcommerce.Infra.Data.Context;
+using AppEcommerce.Infra.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +48,11 @@ if (pagamentoRepoType != null)
 builder.Services.AddScoped<AppEcommerce.Application.Services.ClienteService>();
 builder.Services.AddScoped<AppEcommerce.Application.Services.ProdutoService>();
 builder.Services.AddScoped<AppEcommerce.Application.Services.PagamentoService>();
+
+builder.Services.AddSingleton<JsonContext>();
+builder.Services.AddScoped<IItemCarrinhoRepository, ItemCarrinhoRepository>();
+builder.Services.AddScoped<IItemCarrinhoService, ItemCarrinhoService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();

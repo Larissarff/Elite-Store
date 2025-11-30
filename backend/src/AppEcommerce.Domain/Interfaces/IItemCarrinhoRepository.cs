@@ -1,23 +1,15 @@
-using AppEcommerce.Domain.Entities;
+using AppEcommerce.Application.DTOs.ItemCarrinho;
 
-namespace AppEcommerce.Domain.Interfaces
+namespace AppEcommerce.Application.Interfaces
 {
-    public interface IItemCarrinhoRepository
+    public interface IItemCarrinhoService
     {
+        Task<ItemCarrinhoDto?> GetByIdAsync(int id);
+        Task<IEnumerable<ItemCarrinhoDto>> GetAllAsync();
+        Task<IEnumerable<ItemCarrinhoDto>> GetByCarrinhoAsync(int carrinhoId);
 
-        // Retorna um item de carrinho pelo ID
-        Task<ItemCarrinhoEntity?> GetByIdAsync(int id);
-
-        // Retorna todos os itens cadastrados.
-        Task<IEnumerable<ItemCarrinhoEntity>> GetAllAsync();
-
-        // Adiciona um novo item de carrinho no banco.
-        Task AddAsync(ItemCarrinhoEntity carrinho);
-
-        /// Atualiza os dados de um item de carrinho existente.
-        Task UpdateAsync(ItemCarrinhoEntity carrinho);
-
-        /// Remove um item de carrinho pelo ID.
+        Task<ItemCarrinhoDto> AddAsync(CreateItemCarrinhoDto dto);
+        Task<ItemCarrinhoDto> UpdateAsync(int id, UpdateItemCarrinhoDto dto);
         Task DeleteAsync(int id);
     }
 }
