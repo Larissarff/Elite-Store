@@ -48,5 +48,10 @@ namespace AppEcommerce.Domain.Entities
         {
             ValorTotal = Itens.Sum(i => i.Subtotal);
         }
+
+        public void DefinirId(int id)
+        {
+            IdPedido = id;
+        }
     }
 }

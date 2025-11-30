@@ -1,41 +1,61 @@
 using AppEcommerce.Domain.Entities;
 using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Infra.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppEcommerce.Infra.Data.Repositories
 {
     public class PedidoRepository : IPedidoRepository
     {
-        private readonly AppDbContext _ctx;
+        private readonly JsonContext _context;
+        private const string FileName = "pedidos.json";
 
-        public PedidoRepository(AppDbContext ctx) => _ctx = ctx;
+        public PedidoRepository(JsonContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<PedidoEntity>> GetAllAsync()
+            => await _context.GetAsync<PedidoEntity>(FileName);
+
+        public async Task<PedidoEntity?> GetByIdAsync(int id)
+        {
+            var lista = await _context.GetAsync<PedidoEntity>(FileName);
+            return lista.FirstOrDefault(p => p.IdPedido == id);
+        }
 
         public async Task AddAsync(PedidoEntity pedido)
         {
-            await _ctx.Pedidos.AddAsync(pedido);
-            await _ctx.SaveChangesAsync();
+            var lista = await _context.GetAsync<PedidoEntity>(FileName);
+
+            int novoId = lista.Any() ? lista.Max(p => p.IdPedido) + 1 : 1;
+            pedido.DefinirId(novoId);
+
+            lista.Add(pedido);
+            await _context.SaveAsync(FileName, lista);
+        }
+
+        public async Task UpdateAsync(PedidoEntity pedido)
+        {
+            var lista = await _context.GetAsync<PedidoEntity>(FileName);
+            var index = lista.FindIndex(p => p.IdPedido == pedido.IdPedido);
+
+            if (index != -1)
+            {
+                lista[index] = pedido;
+                await _context.SaveAsync(FileName, lista);
+            }
         }
 
         public async Task DeleteAsync(PedidoEntity pedido)
         {
-            _ctx.Pedidos.Remove(pedido);
-            await _ctx.SaveChangesAsync();
-        }
+            var lista = await _context.GetAsync<PedidoEntity>(FileName);
+            var item = lista.FirstOrDefault(p => p.IdPedido == pedido.IdPedido);
 
-        public async Task<IEnumerable<PedidoEntity>> GetAllAsync()
-            => await _ctx.Pedidos.AsNoTracking().ToListAsync();
-
-        public async Task<PedidoEntity?> GetByIdAsync(int id)
-            => await _ctx.Pedidos
-                         .Include(p => p.Itens)
-                         .AsNoTracking()
-                         .FirstOrDefaultAsync(p => p.IdPedido == id);
-
-        public async Task UpdateAsync(PedidoEntity pedido)
-        {
-            _ctx.Pedidos.Update(pedido);
-            await _ctx.SaveChangesAsync();
+            if (item != null)
+            {
+                lista.Remove(item);
+                await _context.SaveAsync(FileName, lista);
+            }
         }
     }
 }

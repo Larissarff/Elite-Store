@@ -10,7 +10,7 @@ namespace AppEcommerce.Domain.Entities
 
         public PedidoEntity Pedido { get; private set; }
 
-        protected ItemPedidoEntity() { }
+        protected ItemPedidoEntity() {}
 
         public ItemPedidoEntity(int idProduto, int quantidade, decimal subtotal)
         {
