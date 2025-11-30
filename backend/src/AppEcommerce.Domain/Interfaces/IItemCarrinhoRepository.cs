@@ -1,15 +1,13 @@
-using AppEcommerce.Application.DTOs.ItemCarrinho;
+using AppEcommerce.Domain.Entities;
 
-namespace AppEcommerce.Application.Interfaces
+namespace AppEcommerce.Domain.Interfaces
 {
-    public interface IItemCarrinhoService
+    public interface IItemCarrinhoRepository
     {
-        Task<ItemCarrinhoDto?> GetByIdAsync(int id);
-        Task<IEnumerable<ItemCarrinhoDto>> GetAllAsync();
-        Task<IEnumerable<ItemCarrinhoDto>> GetByCarrinhoAsync(int carrinhoId);
-
-        Task<ItemCarrinhoDto> AddAsync(CreateItemCarrinhoDto dto);
-        Task<ItemCarrinhoDto> UpdateAsync(int id, UpdateItemCarrinhoDto dto);
+        Task<ItemCarrinhoEntity?> GetByIdAsync(int id);
+        Task<IEnumerable<ItemCarrinhoEntity>> GetAllAsync();
+        Task AddAsync(ItemCarrinhoEntity entity);
+        Task UpdateAsync(ItemCarrinhoEntity entity);
         Task DeleteAsync(int id);
     }
 }

@@ -3,24 +3,36 @@ namespace AppEcommerce.Domain.Entities;
 public class ItemCarrinhoEntity
 {
     public int ItemCarrinhoId { get; set; }
-    public int IDProduto { get; set; }
+    public int CarrinhoId { get; set; }
+    public int ProdutoId { get; set; }
     public int Quantidade { get; set; }
-    public decimal Subtotal { get; set; }
+    public decimal PrecoUnitario { get; set; }
+    public decimal Subtotal { get; private set; }
 
-    protected ItemCarrinhoEntity () { }
+    public ItemCarrinhoEntity() { }
 
-     public ItemCarrinhoEntity (int idcarrinho, int idcliente, decimal precoUnitario) 
-    { 
-        Update(idcarrinho, idcliente, precoUnitario); 
-    }
-    public void Update(int idProduto, int quantidade, decimal precoUnitario)
+    public ItemCarrinhoEntity(int carrinhoId, int produtoId, int quantidade, decimal precoUnitario)
     {
-        if (idProduto <= 0)
-                throw new ArgumentException("Id do produto inválido.");
-
-        IDProduto = idProduto;
+        CarrinhoId = carrinhoId;
+        ProdutoId = produtoId;
         Quantidade = quantidade;
-        Subtotal = quantidade * precoUnitario;
+        PrecoUnitario = precoUnitario;
+        Subtotal = CalcularSubtotal();
     }
 
+    public void Update(int produtoId, int quantidade, decimal precoUnitario)
+    {
+        if (produtoId <= 0)
+            throw new ArgumentException("Id do produto inválido.");
+
+        ProdutoId = produtoId;
+        Quantidade = quantidade;
+        PrecoUnitario = precoUnitario;
+        Subtotal = CalcularSubtotal();
+    }
+
+    public decimal CalcularSubtotal()
+    {
+        return Quantidade * PrecoUnitario;
+    }
 }

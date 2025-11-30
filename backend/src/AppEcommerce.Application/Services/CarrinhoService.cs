@@ -103,7 +103,7 @@ namespace AppEcommerce.Application.Services
                 dto.Itens = carrinho.Itens
                     .Select(i => new ItemCarrinhoResumoDto
                     {
-                        IDProduto = i.IDProduto,
+                        IDProduto = i.ProdutoId,
                         Quantidade = i.Quantidade,
                         Subtotal = i.Subtotal
                     })

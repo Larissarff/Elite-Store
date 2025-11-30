@@ -4,7 +4,7 @@ public class CarrinhoEntity
 {
     public int IdCarrinho {get; private set;}
     public int IdCliente {get; private set;} 
-    public List<ItemCarrinhoEntity> Itens {get; private set;}
+    public List<ItemCarrinhoEntity> Itens {get; private set;} = new List<ItemCarrinhoEntity>();
 
     protected CarrinhoEntity () { }
 
@@ -28,21 +28,21 @@ public class CarrinhoEntity
 
     public void AdicionarItem(int idProduto, int quantidade, decimal precoUnitario)
     {
-        var itemExistente = Itens.FirstOrDefault(i => i.IDProduto == idProduto);
+        var itemExistente = Itens.FirstOrDefault(i => i.ProdutoId == idProduto);
         if (itemExistente != null)
         {
-            itemExistente.Quantidade += quantidade;
-            itemExistente.Subtotal = itemExistente.Quantidade * precoUnitario;
+            var novaQuantidade = itemExistente.Quantidade + quantidade;
+            itemExistente.Update(itemExistente.ProdutoId, novaQuantidade, precoUnitario);
         }
         else
         {
-            Itens.Add(new ItemCarrinhoEntity(idProduto, quantidade, precoUnitario));
+            Itens.Add(new ItemCarrinhoEntity(IdCarrinho, idProduto, quantidade, precoUnitario));
         }
     }
 
     public void RemoverItem(int idProduto)
     {
-        Itens.RemoveAll(i => i.IDProduto == idProduto);
+        Itens.RemoveAll(i => i.ProdutoId == idProduto);
     }
 
     public decimal CalcularTotal()
