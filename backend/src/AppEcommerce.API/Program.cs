@@ -1,7 +1,14 @@
-using AppEcommerce.Infra.Data.Context;
-using AppEcommerce.Infra.Data.Repositories;
 using System.Reflection;
 using AppEcommerce.Domain.Interfaces;
+using AppEcommerce.Application.Interfaces;
+using AppEcommerce.Application.Services;
+using AppEcommerce.Infra.Data.Context;
+using AppEcommerce.Infra.Data.Repositories;
+
+
+// (já deve ter os de ItemCarrinho aqui também)
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,13 +46,18 @@ if (produtoRepoType != null)
     builder.Services.AddScoped(typeof(AppEcommerce.Domain.Interfaces.IProdutoRepository), produtoRepoType);
 if (pagamentoRepoType != null)
     builder.Services.AddScoped(typeof(AppEcommerce.Domain.Interfaces.IPagamentoRepository), pagamentoRepoType);
+    builder.Services.AddScoped<AppEcommerce.Application.Services.ClienteService>();
+    builder.Services.AddScoped<AppEcommerce.Application.Services.ProdutoService>();
+    builder.Services.AddScoped<AppEcommerce.Application.Services.PagamentoService>();
 
-builder.Services.AddScoped<AppEcommerce.Application.Services.ClienteService>();
-builder.Services.AddScoped<AppEcommerce.Application.Services.ProdutoService>();
-builder.Services.AddScoped<AppEcommerce.Application.Services.PagamentoService>();
+    builder.Services.AddScoped<IItemCarrinhoRepository, ItemCarrinhoRepository>();
+    builder.Services.AddScoped<IItemCarrinhoService, ItemCarrinhoService>();
 
-builder.Services.AddControllers();
-builder.Services.AddAuthorization();
+    builder.Services.AddScoped<ICarrinhoRepository, CarrinhoRepository>();
+    builder.Services.AddScoped<ICarrinhoService, CarrinhoService>();
+
+    builder.Services.AddControllers();
+    builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
