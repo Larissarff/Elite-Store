@@ -1,4 +1,4 @@
-using AppEcommerce.Application.Services;
+using AppEcommerce.Application.Interfaces;
 using AppEcommerce.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,55 +8,46 @@ namespace AppEcommerce.API.Controllers;
 [Route("api/[controller]")]
 public class ProdutoController : ControllerBase
 {
-    private readonly ProdutoService _service;
+    private readonly IProdutoService _service;
 
-    public ProdutoController(ProdutoService service)
+    public ProdutoController(IProdutoService service)
     {
         _service = service;
     }
 
-    // 🔹 GET: api/produto
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<ProdutoEntity>>> GetAll()
     {
         var produtos = await _service.GetAllAsync();
         return Ok(produtos);
     }
 
-    // 🔹 GET: api/produto/5
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<ProdutoEntity>> GetById(int id)
     {
         var produto = await _service.GetByIdAsync(id);
-        if (produto is null)
-            return NotFound("Produto não encontrado.");
-
+        if (produto is null) return NotFound();
         return Ok(produto);
     }
 
-    // 🔹 POST: api/produto
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] ProdutoEntity produto)
+    public async Task<IActionResult> Post([FromBody] ProdutoEntity produto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
+        if (produto is null) return BadRequest("Produto inválido.");
         await _service.AddAsync(produto);
         return CreatedAtAction(nameof(GetById), new { id = produto.Id }, produto);
     }
 
-    // 🔹 PUT: api/produto/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] ProdutoEntity produto)
+    public async Task<IActionResult> Put(int id, [FromBody] ProdutoEntity produto)
     {
-        if (id != produto.Id)
+        if (produto is null || id != produto.Id)
             return BadRequest("ID do produto inválido.");
 
         await _service.UpdateAsync(produto);
         return NoContent();
     }
 
-    // 🔹 DELETE: api/produto/5
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

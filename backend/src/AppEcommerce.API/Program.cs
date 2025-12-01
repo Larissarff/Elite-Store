@@ -1,14 +1,8 @@
-using System.Reflection;
-using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Application.Interfaces;
 using AppEcommerce.Application.Services;
+using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Infra.Data.Context;
 using AppEcommerce.Infra.Data.Repositories;
-
-
-// (já deve ter os de ItemCarrinho aqui também)
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,40 +23,43 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Registrar serviços do projeto de infra via reflexão (evita dependência de tipos concretos em tempo de compilação)
-var infraAssembly = Assembly.Load(new AssemblyName("AppEcommerce.Infra.Data"));
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-var jsonContextType = infraAssembly.GetType("AppEcommerce.Infra.Data.Context.JsonContext");
-if (jsonContextType != null)
-    builder.Services.AddScoped(jsonContextType);
+// Contexto JSON
+builder.Services.AddScoped<JsonContext>();
 
-var clienteRepoType = infraAssembly.GetType("AppEcommerce.Infra.Data.Repositories.ClienteRepository");
-var produtoRepoType = infraAssembly.GetType("AppEcommerce.Infra.Data.Repositories.ProdutoRepository");
-var pagamentoRepoType = infraAssembly.GetType("AppEcommerce.Infra.Data.Repositories.PagamentoRepository");
+// Repositórios
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<IPagamentoRepository, PagamentoRepository>();
+builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IItemPedidoRepository, ItemPedidoRepository>();
+builder.Services.AddScoped<IItemCarrinhoRepository, ItemCarrinhoRepository>();
+builder.Services.AddScoped<ICarrinhoRepository, CarrinhoRepository>();
 
-if (clienteRepoType != null)
-    builder.Services.AddScoped(typeof(AppEcommerce.Domain.Interfaces.IClienteRepository), clienteRepoType);
-if (produtoRepoType != null)
-    builder.Services.AddScoped(typeof(AppEcommerce.Domain.Interfaces.IProdutoRepository), produtoRepoType);
-if (pagamentoRepoType != null)
-    builder.Services.AddScoped(typeof(AppEcommerce.Domain.Interfaces.IPagamentoRepository), pagamentoRepoType);
-    builder.Services.AddScoped<AppEcommerce.Application.Services.ClienteService>();
-    builder.Services.AddScoped<AppEcommerce.Application.Services.ProdutoService>();
-    builder.Services.AddScoped<AppEcommerce.Application.Services.PagamentoService>();
+// Services (sempre interface + implementação)
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<IPagamentoService, PagamentoService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IItemCarrinhoService, ItemCarrinhoService>();
+builder.Services.AddScoped<ICarrinhoService, CarrinhoService>();
 
-    builder.Services.AddScoped<IItemCarrinhoRepository, ItemCarrinhoRepository>();
-    builder.Services.AddScoped<IItemCarrinhoService, ItemCarrinhoService>();
-
-    builder.Services.AddScoped<ICarrinhoRepository, CarrinhoRepository>();
-    builder.Services.AddScoped<ICarrinhoService, CarrinhoService>();
-
-    builder.Services.AddControllers();
-    builder.Services.AddAuthorization();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 app.UseCors("EcommercePolicy");
+app.UseAuthorization();
 
 app.MapControllers();
 

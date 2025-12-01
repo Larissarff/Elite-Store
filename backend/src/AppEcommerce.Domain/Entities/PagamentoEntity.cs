@@ -1,60 +1,40 @@
-using System.Text.Json.Serialization;
 using AppEcommerce.Domain.Enums;
 
-namespace AppEcommerce.Domain.Entities;
-
-public class PagamentoEntity
+namespace AppEcommerce.Domain.Entities
 {
-    [JsonInclude]
-    public int Id { get; private set; }
-
-    [JsonInclude]
-    public int IdPedido { get; private set; }
-
-    [JsonInclude]
-    public FormaPagamentoEnum Forma { get; private set; }
-
-    [JsonInclude]
-    public StatusPagamentoEnum Status { get; private set; }
-
-    // Construtor vazio para o serializador JSON
-    public PagamentoEntity() { }
-
-    // Construtor usado pela aplicação
-    public PagamentoEntity(int idPedido, FormaPagamentoEnum forma, StatusPagamentoEnum status)
+    /// <summary>
+    /// Classe base abstrata para representar regras variáveis
+    /// de forma de pagamento (taxas, comportamento, etc.).
+    /// </summary>
+    public abstract class PagamentoEntity
     {
-        Update(idPedido, forma, status);
+        public abstract FormaPagamentoEnum Forma { get; }
+
+        public virtual decimal CalcularTaxaServico(decimal valorPedido)
+        {
+            return 0m;
+        }
     }
 
-    // Método necessário para o Repository injetar o ID gerado
-    public void DefinirId(int id)
+    public class PagamentoPix : PagamentoEntity
     {
-        Id = id;
+        public override FormaPagamentoEnum Forma => FormaPagamentoEnum.Pix;
+
+        public override decimal CalcularTaxaServico(decimal valorPedido)
+        {
+            // Exemplo: Pix sem taxa
+            return 0m;
+        }
     }
 
-    public void Update(int idPedido, FormaPagamentoEnum forma, StatusPagamentoEnum status)
+    public class PagamentoCartaoCredito : PagamentoEntity
     {
-        if (idPedido <= 0)
-            throw new ArgumentException("Id do pedido inválido.");
+        public override FormaPagamentoEnum Forma => FormaPagamentoEnum.CartaoCredito;
 
-        IdPedido = idPedido;
-        Forma = forma;
-        Status = status;
-    }
-
-    public void ConfirmarPagamento()
-    {
-        if (Status == StatusPagamentoEnum.Pago)
-            throw new InvalidOperationException("Pagamento já foi confirmado.");
-
-        Status = StatusPagamentoEnum.Pago;
-    }
-
-    public void CancelarPagamento()
-    {
-        if (Status == StatusPagamentoEnum.Cancelado)
-            throw new InvalidOperationException("Pagamento já foi cancelado.");
-
-        Status = StatusPagamentoEnum.Cancelado;
+        public override decimal CalcularTaxaServico(decimal valorPedido)
+        {
+            // Exemplo: 2% de taxa no cartão de crédito
+            return valorPedido * 0.02m;
+        }
     }
 }

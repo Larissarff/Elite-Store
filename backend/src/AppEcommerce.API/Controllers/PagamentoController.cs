@@ -1,5 +1,6 @@
-using AppEcommerce.Application.Services;
+using AppEcommerce.Application.Interfaces;
 using AppEcommerce.Domain.Entities;
+using AppEcommerce.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppEcommerce.API.Controllers;
@@ -8,59 +9,86 @@ namespace AppEcommerce.API.Controllers;
 [Route("api/[controller]")]
 public class PagamentoController : ControllerBase
 {
-    private readonly PagamentoService _service;
+    private readonly IPagamentoService _service;
 
-    public PagamentoController(PagamentoService service)
+    public PagamentoController(IPagamentoService service)
     {
         _service = service;
     }
 
-    // GET: api/pagamento
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<PagamentoEntity>>> GetAll()
     {
         var pagamentos = await _service.GetAllAsync();
         return Ok(pagamentos);
     }
 
-    // GET: api/pagamento/5
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<PagamentoEntity>> GetById(int id)
     {
-        var pagamento = await _service.GetByIdAsync(id);
-        if (pagamento is null)
-            return NotFound("Pagamento não encontrado.");
-
-        return Ok(pagamento);
+        try
+        {
+            var pagamento = await _service.GetByIdAsync(id);
+            if (pagamento is null) return NotFound();
+            return Ok(pagamento);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
-    // POST: api/pagamento
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PagamentoEntity pagamento)
+    public async Task<IActionResult> Post([FromBody] PagamentoEntity pagamento)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        if (pagamento is null) return BadRequest("Pagamento inválido.");
 
         await _service.AddAsync(pagamento);
         return CreatedAtAction(nameof(GetById), new { id = pagamento.Id }, pagamento);
     }
 
-    // PUT: api/pagamento/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PagamentoEntity pagamento)
+    public async Task<IActionResult> Put(int id, [FromBody] PagamentoEntity pagamento)
     {
-        if (id != pagamento.Id)
+        if (pagamento is null || id != pagamento.Id)
             return BadRequest("ID do pagamento inválido.");
 
         await _service.UpdateAsync(pagamento);
         return NoContent();
     }
 
-    // DELETE: api/pagamento/5
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        await _service.DeleteAsync(id);
-        return NoContent();
+        try
+        {
+            await _service.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    // Endpoint exemplo usando polimorfismo (taxa por forma de pagamento)
+    [HttpGet("calcular-valor")]
+    public async Task<ActionResult<decimal>> CalcularValor(
+        [FromQuery] FormaPagamentoEnum forma,
+        [FromQuery] decimal valorPedido)
+    {
+        try
+        {
+            var total = await _service.CalcularValorComTaxaAsync(forma, valorPedido);
+            return Ok(total);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

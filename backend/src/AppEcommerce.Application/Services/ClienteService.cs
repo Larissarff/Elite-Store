@@ -1,11 +1,12 @@
 using AppEcommerce.Application.DTOs;
 using AppEcommerce.Application.Requests;
+using AppEcommerce.Application.Interfaces;
 using AppEcommerce.Domain.Entities;
 using AppEcommerce.Domain.Interfaces;
 
 namespace AppEcommerce.Application.Services;
 
-public class ClienteService
+public class ClienteService : IClienteService
 {
     private readonly IClienteRepository _repository;
 
@@ -13,7 +14,6 @@ public class ClienteService
     {
         _repository = repository;
     }
-
     public async Task<ClienteDto> CreateAsync(CreateClienteRequest request)
     {
         var existente = await _repository.GetByEmailAsync(request.Email);

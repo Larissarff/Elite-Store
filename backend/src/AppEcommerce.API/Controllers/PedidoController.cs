@@ -1,4 +1,4 @@
-using AppEcommerce.Application.Services;
+using AppEcommerce.Application.Interfaces;
 using AppEcommerce.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,55 +8,47 @@ namespace AppEcommerce.API.Controllers
     [Route("api/[controller]")]
     public class PedidoController : ControllerBase
     {
-        private readonly PedidoService _service;
+        private readonly IPedidoService _service;
 
-        public PedidoController(PedidoService service)
+        public PedidoController(IPedidoService service)
         {
             _service = service;
         }
 
-        // GET: api/pedido
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<PedidoEntity>>> GetAll()
         {
             var pedidos = await _service.GetAllAsync();
             return Ok(pedidos);
         }
 
-        // GET: api/pedido/5
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<PedidoEntity>> GetById(int id)
         {
             var pedido = await _service.GetByIdAsync(id);
-            if (pedido is null)
-                return NotFound("Pedido não encontrado.");
-
+            if (pedido is null) return NotFound();
             return Ok(pedido);
         }
 
-        // POST: api/pedido
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] PedidoEntity pedido)
+        public async Task<IActionResult> Post([FromBody] PedidoEntity pedido)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (pedido is null) return BadRequest("Pedido inválido.");
 
             await _service.AddAsync(pedido);
             return CreatedAtAction(nameof(GetById), new { id = pedido.IdPedido }, pedido);
         }
 
-        // PUT: api/pedido/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] PedidoEntity pedido)
+        public async Task<IActionResult> Put(int id, [FromBody] PedidoEntity pedido)
         {
-            if (id != pedido.IdPedido)
+            if (pedido is null || id != pedido.IdPedido)
                 return BadRequest("ID do pedido inválido.");
 
             await _service.UpdateAsync(pedido);
             return NoContent();
         }
 
-        // DELETE: api/pedido/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
