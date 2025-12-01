@@ -8,6 +8,10 @@ namespace AppEcommerce.Domain.Entities
     /// </summary>
     public abstract class PagamentoEntity
     {
+        public int Id { get; private set; }
+
+        public void DefinirId(int id) => Id = id;
+
         public abstract FormaPagamentoEnum Forma { get; }
 
         public virtual decimal CalcularTaxaServico(decimal valorPedido)

@@ -1,40 +1,58 @@
 using AppEcommerce.Domain.Entities;
 using AppEcommerce.Domain.Interfaces;
 using AppEcommerce.Infra.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace AppEcommerce.Infra.Data.Repositories
 {
     public class ItemPedidoRepository : IItemPedidoRepository
     {
-        private readonly AppDbContext _ctx;
+        private readonly JsonContext _json;
+        private const string FILE_NAME = "itens_pedido.json";
 
-        public ItemPedidoRepository(AppDbContext ctx) => _ctx = ctx;
+        public ItemPedidoRepository(JsonContext json)
+        {
+            _json = json;
+        }
 
         public async Task AddAsync(ItemPedidoEntity item)
         {
-            await _ctx.ItensPedido.AddAsync(item);
-            await _ctx.SaveChangesAsync();
+            var lista = await _json.GetAsync<ItemPedidoEntity>(FILE_NAME);
+
+            // Não há ID no ItemPedidoEntity atualmente, então apenas adicionamos
+            lista.Add(item);
+            await _json.SaveAsync(FILE_NAME, lista);
         }
 
         public async Task DeleteAsync(ItemPedidoEntity item)
         {
-            _ctx.ItensPedido.Remove(item);
-            await _ctx.SaveChangesAsync();
+            var lista = await _json.GetAsync<ItemPedidoEntity>(FILE_NAME);
+            var existente = lista.FirstOrDefault(i => i.IdProduto == item.IdProduto && i.Quantidade == item.Quantidade && i.Subtotal == item.Subtotal);
+            if (existente != null)
+            {
+                lista.Remove(existente);
+                await _json.SaveAsync(FILE_NAME, lista);
+            }
         }
 
         public async Task<IEnumerable<ItemPedidoEntity>> GetAllAsync()
-            => await _ctx.ItensPedido.AsNoTracking().ToListAsync();
+            => await _json.GetAsync<ItemPedidoEntity>(FILE_NAME);
 
         public async Task<ItemPedidoEntity?> GetByIdAsync(int id)
-            => await _ctx.ItensPedido
-                         .AsNoTracking()
-                         .FirstOrDefaultAsync(i => i.IdItemPedido == id);
+        {
+            var lista = await _json.GetAsync<ItemPedidoEntity>(FILE_NAME);
+            // ItemPedidoEntity não possui Id explícito; procurar por correspondência baseada no índice/Produto
+            return lista.ElementAtOrDefault(id - 1);
+        }
 
         public async Task UpdateAsync(ItemPedidoEntity item)
         {
-            _ctx.ItensPedido.Update(item);
-            await _ctx.SaveChangesAsync();
+            var lista = await _json.GetAsync<ItemPedidoEntity>(FILE_NAME);
+            var index = lista.FindIndex(i => i.IdProduto == item.IdProduto && i.Subtotal == item.Subtotal && i.Quantidade == item.Quantidade);
+            if (index != -1)
+            {
+                lista[index] = item;
+                await _json.SaveAsync(FILE_NAME, lista);
+            }
         }
     }
 }

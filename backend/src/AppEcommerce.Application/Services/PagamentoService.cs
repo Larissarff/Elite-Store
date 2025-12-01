@@ -8,14 +8,14 @@ namespace AppEcommerce.Application.Services
     public class PagamentoService : IPagamentoService
     {
         private readonly IPagamentoRepository _repo;
-        private readonly IDictionary<FormaPagamentoEnum, PagamentoBase> _estrategias;
+        private readonly IDictionary<FormaPagamentoEnum, PagamentoEntity> _estrategias;
 
         public PagamentoService(IPagamentoRepository repo)
         {
             _repo = repo;
 
             // Estratégias por forma de pagamento
-            _estrategias = new Dictionary<FormaPagamentoEnum, PagamentoBase>
+            _estrategias = new Dictionary<FormaPagamentoEnum, PagamentoEntity>
             {
                 { FormaPagamentoEnum.Pix, new PagamentoPix() },
                 { FormaPagamentoEnum.CartaoCredito, new PagamentoCartaoCredito() }
