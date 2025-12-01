@@ -76,7 +76,7 @@ VITE_API_BASE_URL=http://localhost:5000
 ## ▶️ Executando o Frontend
 
 ```bash
-cd frontend/shop-verde-dorado
+cd  frontend\src
 npm install
 npm run dev
 ```
