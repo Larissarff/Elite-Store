@@ -1,7 +1,6 @@
 # 🛒 E-commerce — Backend (.NET) + Frontend (React)
 
-Projeto acadêmico de um sistema de e-commerce, composto por uma API em C# .NET e um frontend em React (Vite).  
-A persistência foi implementada via arquivos **JSON**, conforme orientação do professor.
+Projeto acadêmico de um sistema de e-commerce, composto por uma API em C# .NET e um frontend em React (Vite). 
 
 ---
 
@@ -191,9 +190,18 @@ para arquivos **JSON**, atendendo recomendação acadêmica.
 
 ---
 
-## ✍️ Autoria
+## 👥 Colaboradores
 
-Projeto desenvolvido por **Larissa Ferreira** para fins acadêmicos.
+| Nome | 
+|------|
+| Larissa Ferreira - 06011175| 
+| Carolina Diaz - 06010688 |
+| Gabriel - 06010804|
+| Rodrigo |
+| David - 06012723|
+| Diego - |
+
+
 
 ```
 ::contentReference[oaicite:0]{index=0}
